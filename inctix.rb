@@ -120,4 +120,4 @@ begin
 
   db.query("UPDATE `desks` SET `last_timestamp` = '#{tix.included['end_time']}' WHERE `domain` = '#{domain}';")
   starttime = tix.included['end_time']
-end while starttime < (Time.now.to_i - 300)
+end while starttime < (Time.now.to_i - 300) && starttime != tix.included['end_time']
