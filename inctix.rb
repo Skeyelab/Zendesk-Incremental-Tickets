@@ -49,9 +49,7 @@ begin
         puts "Calling #{domain} from #{Time.at(starttime)}"
         tix = client.tickets.incremental_export(starttime);
         # puts tix.response.status
-        if tix.count > 0
-          progressbar = ProgressBar.create(:total => 1000,:format => "%a %e %P% Processed: %c from %C")
-        end
+        progressbar = ProgressBar.create(:total => 1000,:format => "%a %e %P% Processed: %c from %C")
         tix.each do |tic|
           results = db.query("SHOW COLUMNS FROM #{domain}");
           cols = []
@@ -133,9 +131,7 @@ begin
 
           # puts q1+q2
           db.query(q1+q2)
-          if tix
-            progressbar.increment
-          end
+          progressbar.increment
         end
         oldstarttime = starttime
         if tix.included
@@ -143,9 +139,7 @@ begin
           db.query("UPDATE `desks` SET `last_timestamp` = '#{tix.included['end_time']}' WHERE `domain` = '#{domain}';")
           starttime = tix.included['end_time']
         end
-        if tix.count > 0
-          progressbar.finish
-        end
+        progressbar.finish
       end while ((oldstarttime < starttime) && (oldstarttime < Time.now.to_i))
     end
   else
