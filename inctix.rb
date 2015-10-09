@@ -133,7 +133,9 @@ begin
 
           # puts q1+q2
           db.query(q1+q2)
-          progressbar.increment
+          if tix
+            progressbar.increment
+          end
         end
         oldstarttime = starttime
         if tix.included
