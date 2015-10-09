@@ -43,6 +43,7 @@ begin
 
   tix = client.tickets.incremental_export(starttime);
 
+
   tix.each do |tic|
     results = db.query("SHOW COLUMNS FROM #{domain}");
     cols = []
@@ -119,4 +120,4 @@ begin
 
   db.query("UPDATE `desks` SET `last_timestamp` = '#{tix.included['end_time']}' WHERE `domain` = '#{domain}';")
   starttime = tix.included['end_time']
-end while tix.included['end_time'] <= (Time.now.to_i - 300)
+end while tix.included['end_time'] < (Time.now.to_i - 300)
