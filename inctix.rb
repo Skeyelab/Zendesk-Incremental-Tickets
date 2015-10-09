@@ -4,6 +4,7 @@ require 'zendesk_api'
 require 'pry'
 require 'mysql2'
 require 'ruby-progressbar'
+require 'timecop'
 
 db = Mysql2::Client.new(:host => "107.170.142.131", :username => "zendeskulator", :password => "pR5Raspu",:database => "zdtix")
 
