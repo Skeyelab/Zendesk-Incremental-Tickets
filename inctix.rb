@@ -20,8 +20,8 @@ client = ZendeskAPI::Client.new do |config|
 
   config.retry = true
 
-  # require 'logger'
-  # config.logger = Logger.new(STDOUT)
+  require 'logger'
+  config.logger = Logger.new(STDOUT)
 
 end
 
@@ -118,6 +118,8 @@ begin
 
   end
   oldstarttime = starttime
-  db.query("UPDATE `desks` SET `last_timestamp` = '#{tix.included['end_time']}' WHERE `domain` = '#{domain}';")
-  starttime = tix.included['end_time']
+  if tix.included['end_time']
+    db.query("UPDATE `desks` SET `last_timestamp` = '#{tix.included['end_time']}' WHERE `domain` = '#{domain}';")
+    starttime = tix.included['end_time']
+  end
 end while ((oldstarttime < starttime) && (oldstarttime < Time.now.to_i))
