@@ -8,124 +8,125 @@ require 'timecop'
 
 db = Mysql2::Client.new(:host => "107.170.142.131", :username => "zendeskulator", :password => "pR5Raspu",:database => "zdtix")
 
-desks = db.query("select * from desks limit 1;")
+desks = db.query("select * from desks;")
 
-desk = desks.first
+#desk = desks.first
+desks.each do |desk|
+  domain = desk["domain"]
 
-domain = desk["domain"]
+  client = ZendeskAPI::Client.new do |config|
 
-client = ZendeskAPI::Client.new do |config|
+    config.url = "https://#{domain}.zendesk.com/api/v2" # e.g. https://mydesk.zendesk.com/api/v2
+    config.username = desk["user"]
+    config.token = desk["token"]
 
-  config.url = "https://#{domain}.zendesk.com/api/v2" # e.g. https://mydesk.zendesk.com/api/v2
-  config.username = desk["user"]
-  config.token = desk["token"]
+    config.retry = true
 
-  config.retry = true
+    # require 'logger'
+    # config.logger = Logger.new(STDOUT)
 
-  # require 'logger'
-  # config.logger = Logger.new(STDOUT)
+  end
 
-end
+  tables = db.query("SHOW TABLES FROM zdtix",:as => :array);
+  tbls =[]
 
-tables = db.query("SHOW TABLES FROM zdtix",:as => :array);
-tbls =[]
+  tables.each do |table|
+    tbls << table[0]
+  end
 
-tables.each do |table|
-  tbls << table[0]
-end
-
-if !tbls.include? domain
-  db.query("CREATE TABLE `#{domain}` (id INT(11) UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT);
+  if !tbls.include? domain
+    db.query("CREATE TABLE `#{domain}` (id INT(11) UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT);
 ")
-end
+  end
 
-starttime = desk["last_timestamp"].to_i
-#binding.pry
-begin
+  starttime = desk["last_timestamp"].to_i
+  #binding.pry
+  begin
 
-  puts "calling zd"
-  tix = client.tickets.incremental_export(starttime);
-  puts "done calling"
-  progressbar = ProgressBar.create(:total => 1000,:format => "%a %e %P% Processed: %c from %C")
-
-
-  tix.each do |tic|
-    results = db.query("SHOW COLUMNS FROM #{domain}");
-    cols = []
-
-    results.each do |col|
-      #puts col["Field"]
-      cols << col["Field"]
-
-    end
-    apicols = []
-    neededcols = []
+    puts "calling zd"
+    tix = client.tickets.incremental_export(starttime);
+    puts "done calling"
+    progressbar = ProgressBar.create(:total => 1000,:format => "%a %e %P% Processed: %c from %C")
 
 
-    tic.keys.each do |key|
-      apicols << key
-    end
+    tix.each do |tic|
+      results = db.query("SHOW COLUMNS FROM #{domain}");
+      cols = []
 
-    neededcols = apicols - cols
-    if neededcols.count > 0
+      results.each do |col|
+        #puts col["Field"]
+        cols << col["Field"]
 
-      querypairs = []
+      end
+      apicols = []
+      neededcols = []
 
-      neededcols.each do |col|
-        if (col.include? "minutes") || (col.include? "id")
-          pair = {:field => col, :type => "int(16)"}
-          querypairs << pair
-        elsif (col.include? "_at") || (col.include? "timestamp")
-          pair = {:field => col, :type => "datetime"}
-          querypairs << pair
-        else
-          pair = {:field => col, :type => "text"}
-          querypairs << pair
+
+      tic.keys.each do |key|
+        apicols << key
+      end
+
+      neededcols = apicols - cols
+      if neededcols.count > 0
+
+        querypairs = []
+
+        neededcols.each do |col|
+          if (col.include? "minutes") || (col.include? "id")
+            pair = {:field => col, :type => "int(16)"}
+            querypairs << pair
+          elsif (col.include? "_at") || (col.include? "timestamp")
+            pair = {:field => col, :type => "datetime"}
+            querypairs << pair
+          else
+            pair = {:field => col, :type => "text"}
+            querypairs << pair
+          end
         end
+
+        query = "ALTER TABLE #{domain} ADD ("
+
+        querypairs.each do |pair|
+          query = query + pair[:field] + " " + pair[:type]+","
+        end
+        query = query.chomp(",")
+
+        query = query + ");"
+
+        puts "***ADDING COL***"
+        puts query
+
+        db.query(query)
+
       end
 
-      query = "ALTER TABLE #{domain} ADD ("
 
-      querypairs.each do |pair|
-        query = query + pair[:field] + " " + pair[:type]+","
+
+      querypairs = {}
+      tic.each do |field|
+        querypairs[field[0].to_s] = field[1]
       end
-      query = query.chomp(",")
+      q1 = "REPLACE INTO #{domain} ("
+      q2 = ") VALUES ("
+      querypairs.each do |key, value|
+        q1 = q1 + key.to_s + ", "
+        q2 = q2 + "\"" + db.escape(value.to_s) + "\", "
+      end
 
-      query = query + ");"
+      q1 = q1.chomp(", ")
+      q2 = q2.chomp(", ")
 
-      puts "***ADDING COL***"
-      puts query
+      q2 = q2 + ");"
 
-      db.query(query)
-
+      # puts q1+q2
+      db.query(q1+q2)
+      progressbar.increment
     end
-
-
-
-    querypairs = {}
-    tic.each do |field|
-      querypairs[field[0].to_s] = field[1]
+    oldstarttime = starttime
+    if tix.included
+      db.query("UPDATE `desks` SET `last_timestamp` = '#{tix.included['end_time']}' WHERE `domain` = '#{domain}';")
+      starttime = tix.included['end_time']
     end
-    q1 = "REPLACE INTO #{domain} ("
-    q2 = ") VALUES ("
-    querypairs.each do |key, value|
-      q1 = q1 + key.to_s + ", "
-      q2 = q2 + "\"" + db.escape(value.to_s) + "\", "
-    end
-
-    q1 = q1.chomp(", ")
-    q2 = q2.chomp(", ")
-
-    q2 = q2 + ");"
-
-    # puts q1+q2
-    db.query(q1+q2)
-    progressbar.increment
-  end
-  oldstarttime = starttime
-  if tix.included
-    db.query("UPDATE `desks` SET `last_timestamp` = '#{tix.included['end_time']}' WHERE `domain` = '#{domain}';")
-    starttime = tix.included['end_time']
-  end
-  progressbar.finish
-end while ((oldstarttime < starttime) && (oldstarttime < Time.now.to_i))
+    progressbar.finish
+  end while ((oldstarttime < starttime) && (oldstarttime < Time.now.to_i))
+end
