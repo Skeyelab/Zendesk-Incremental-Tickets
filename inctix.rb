@@ -18,7 +18,7 @@ desks.each do |desk|
     config.username = desk["user"]
     config.token = desk["token"]
 
-    config.retry = true
+    #config.retry = true
 
     # require 'logger'
     # config.logger = Logger.new(STDOUT)
@@ -126,6 +126,7 @@ desks.each do |desk|
     end
     oldstarttime = starttime
     if tix.included
+      #  binding.pry
       db.query("UPDATE `desks` SET `last_timestamp` = '#{tix.included['end_time']}' WHERE `domain` = '#{domain}';")
       starttime = tix.included['end_time']
     end
