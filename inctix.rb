@@ -10,7 +10,7 @@ db = Mysql2::Client.new(:host => "107.170.142.131", :username => "zendeskulator"
 
 begin
   puts "start"
-  desks = db.query("select * from desks where last_timestamp <= #{Time.now.to_i-300} order by last_timestamp desc;")
+  desks = db.query("select * from desks where last_timestamp <= #{Time.now.to_i-300} and wait_till < #{Time.now.to_i} order by last_timestamp desc;")
   #desk = desks.first
   desks.each do |desk|
     domain = desk["domain"]
@@ -31,7 +31,7 @@ begin
     client.insert_callback do |env|
       if env[:status] == 429
 
-        puts "BLHDLKHSLKS"
+        db.query("UPDATE `desks` SET `wait_till` = '#{(env[:response_headers][:retry_after] || 10).to_i + Time.now.to_i}' WHERE `domain` = '#{domain}';")
         # seconds_left = (env[:response_headers][:retry_after] || 10).to_i
         # @logger.warn "You have been rate limited. Retrying in #{seconds_left} seconds..." if @logger
 
