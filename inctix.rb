@@ -22,26 +22,14 @@ begin
 
         config.retry = false
 
-        # require 'logger'
-        # config.logger = Logger.new(STDOUT)
-
       end
-
 
       client.insert_callback do |env|
         if env[:status] == 429
-
           db.query("UPDATE `desks` SET `wait_till` = '#{(env[:response_headers][:retry_after] || 10).to_i + Time.now.to_i}' WHERE `domain` = '#{domain}';")
-          # seconds_left = (env[:response_headers][:retry_after] || 10).to_i
-          # @logger.warn "You have been rate limited. Retrying in #{seconds_left} seconds..." if @logger
-
-          # seconds_left.times do |i|
-          #   sleep 1
-          #   time_left = seconds_left - i
-          #   @logger.warn "#{time_left}..." if time_left > 0 && time_left % 5 == 0 && @logger
-          # end
         end
       end
+
 
       tables = db.query("SHOW TABLES FROM zdtix",:as => :array);
       tbls =[]
@@ -61,8 +49,9 @@ begin
         puts "Calling #{domain} from #{Time.at(starttime)}"
         tix = client.tickets.incremental_export(starttime);
         # puts tix.response.status
-        progressbar = ProgressBar.create(:total => 1000,:format => "%a %e %P% Processed: %c from %C")
-
+        if tix
+          progressbar = ProgressBar.create(:total => 1000,:format => "%a %e %P% Processed: %c from %C")
+        end
         tix.each do |tic|
           results = db.query("SHOW COLUMNS FROM #{domain}");
           cols = []
@@ -126,8 +115,6 @@ begin
 
           end
 
-
-
           querypairs = {}
           tic.each do |field|
             querypairs[field[0].to_s] = field[1]
@@ -154,7 +141,9 @@ begin
           db.query("UPDATE `desks` SET `last_timestamp` = '#{tix.included['end_time']}' WHERE `domain` = '#{domain}';")
           starttime = tix.included['end_time']
         end
-        progressbar.finish
+        if tix
+          progressbar.finish
+        end
       end while ((oldstarttime < starttime) && (oldstarttime < Time.now.to_i))
     end
   else
@@ -163,7 +152,6 @@ begin
     if sleepinc > 0
       sleep sleepinc
     end
-
 
   end
 end while 1
