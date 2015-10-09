@@ -9,7 +9,7 @@ require 'timecop'
 db = Mysql2::Client.new(:host => "107.170.142.131", :username => "zendeskulator", :password => "pR5Raspu",:database => "zdtix")
 
 begin
-  desks = db.query("select * from desks where last_timestamp <= #{Time.now.to_i-300} and wait_till < #{Time.now.to_i} order by last_timestamp desc;")
+  desks = db.query("select * from desks where last_timestamp <= #{Time.now.to_i-300} and wait_till < #{Time.now.to_i} and active = 1 order by last_timestamp desc;")
   #desk = desks.first
   if desks.count > 0
     desks.each do |desk|
