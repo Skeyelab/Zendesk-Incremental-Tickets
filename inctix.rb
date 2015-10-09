@@ -19,7 +19,7 @@ begin
       config.username = desk["user"]
       config.token = desk["token"]
 
-      #config.retry = true
+      config.retry = true
 
       # require 'logger'
       # config.logger = Logger.new(STDOUT)
