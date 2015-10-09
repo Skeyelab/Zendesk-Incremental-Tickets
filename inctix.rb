@@ -9,11 +9,9 @@ require 'timecop'
 db = Mysql2::Client.new(:host => "107.170.142.131", :username => "zendeskulator", :password => "pR5Raspu",:database => "zdtix")
 
 desks = db.query("select * from desks;")
-
 #desk = desks.first
 desks.each do |desk|
   domain = desk["domain"]
-
   client = ZendeskAPI::Client.new do |config|
 
     config.url = "https://#{domain}.zendesk.com/api/v2" # e.g. https://mydesk.zendesk.com/api/v2
@@ -40,7 +38,6 @@ desks.each do |desk|
   end
 
   starttime = desk["last_timestamp"].to_i
-  #binding.pry
   begin
 
     puts "calling zd"
