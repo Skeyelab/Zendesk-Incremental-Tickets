@@ -9,7 +9,8 @@ require 'timecop'
 db = Mysql2::Client.new(:host => "107.170.142.131", :username => "zendeskulator", :password => "pR5Raspu",:database => "zdtix")
 
 begin
-  desks = db.query("select * from desks order by last_timestamp;")
+  puts "start"
+  desks = db.query("select * from desks where last_timestamp <= #{Time.now.to_i-300} order by last_timestamp;")
   #desk = desks.first
   desks.each do |desk|
     domain = desk["domain"]
@@ -19,11 +20,25 @@ begin
       config.username = desk["user"]
       config.token = desk["token"]
 
-      config.retry = true
+      config.retry = false
 
       # require 'logger'
       # config.logger = Logger.new(STDOUT)
 
+    end
+
+
+    client.insert_callback do |env|
+      if env[:status] == 429
+        seconds_left = (env[:response_headers][:retry_after] || 10).to_i
+        @logger.warn "You have been rate limited. Retrying in #{seconds_left} seconds..." if @logger
+
+        seconds_left.times do |i|
+          sleep 1
+          time_left = seconds_left - i
+          @logger.warn "#{time_left}..." if time_left > 0 && time_left % 5 == 0 && @logger
+        end
+      end
     end
 
     tables = db.query("SHOW TABLES FROM zdtix",:as => :array);
