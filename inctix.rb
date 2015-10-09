@@ -3,6 +3,7 @@ require 'bundler/setup'
 require 'zendesk_api'
 require 'pry'
 require 'mysql2'
+require 'ruby-progressbar'
 
 db = Mysql2::Client.new(:host => "107.170.142.131", :username => "zendeskulator", :password => "pR5Raspu",:database => "zdtix")
 
@@ -20,8 +21,8 @@ client = ZendeskAPI::Client.new do |config|
 
   config.retry = true
 
-  require 'logger'
-  config.logger = Logger.new(STDOUT)
+  # require 'logger'
+  # config.logger = Logger.new(STDOUT)
 
 end
 
@@ -41,6 +42,7 @@ starttime = desk["last_timestamp"].to_i
 #binding.pry
 begin
 
+  progressbar = ProgressBar.create(:total => 1000)
   tix = client.tickets.incremental_export(starttime);
 
 
@@ -115,11 +117,12 @@ begin
 
     # puts q1+q2
     db.query(q1+q2)
-
+    progressbar.increment
   end
   oldstarttime = starttime
   if tix.included
     db.query("UPDATE `desks` SET `last_timestamp` = '#{tix.included['end_time']}' WHERE `domain` = '#{domain}';")
     starttime = tix.included['end_time']
   end
+  progressbar.finish
 end while ((oldstarttime < starttime) && (oldstarttime < Time.now.to_i))
