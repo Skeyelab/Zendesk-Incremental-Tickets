@@ -40,9 +40,8 @@ desks.each do |desk|
   starttime = desk["last_timestamp"].to_i
   begin
 
-    puts "calling zd"
+    puts "calling #{domain}"
     tix = client.tickets.incremental_export(starttime);
-    puts "done calling"
     progressbar = ProgressBar.create(:total => 1000,:format => "%a %e %P% Processed: %c from %C")
 
 
@@ -69,7 +68,13 @@ desks.each do |desk|
         querypairs = []
 
         neededcols.each do |col|
-          if (col.include? "minutes") || (col.include? "id")
+          if (col.include? "req_external_id")
+            pair = {:field => col, :type => "varchar(64)"}
+            querypairs << pair
+          elsif (col.include? "minutes") || (col.include? "id")
+            pair = {:field => col, :type => "int(16)"}
+            querypairs << pair
+          elsif (col.include? "generated_timestamp")
             pair = {:field => col, :type => "int(16)"}
             querypairs << pair
           elsif (col.include? "_at") || (col.include? "timestamp")
@@ -90,8 +95,8 @@ desks.each do |desk|
 
         query = query + ");"
 
-        puts "***ADDING COL***"
-        puts query
+        progressbar.log "***ADDING COL***"
+        progressbar.log query
 
         db.query(query)
 
