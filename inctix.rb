@@ -135,4 +135,4 @@ begin
       progressbar.finish
     end while ((oldstarttime < starttime) && (oldstarttime < Time.now.to_i))
   end
-end while 1=1
+end while 1
