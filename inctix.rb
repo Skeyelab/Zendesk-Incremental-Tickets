@@ -46,7 +46,6 @@ begin
       # puts tix.response.status
       progressbar = ProgressBar.create(:total => 1000,:format => "%a %e %P% Processed: %c from %C")
 
-
       tix.each do |tic|
         results = db.query("SHOW COLUMNS FROM #{domain}");
         cols = []
@@ -70,10 +69,13 @@ begin
           querypairs = []
 
           neededcols.each do |col|
-            if (col.include? "req_external_id")
+            if (col.include? "req_external_id") || (col.include? "_name")
               pair = {:field => col, :type => "varchar(64)"}
               querypairs << pair
             elsif (col.include? "minutes") || (col.include? "id")
+              pair = {:field => col, :type => "int(16)"}
+              querypairs << pair
+            elsif (tix.included["field_headers"][col]) && (tix.included["field_headers"][col].include? "[int]")
               pair = {:field => col, :type => "int(16)"}
               querypairs << pair
             elsif (col.include? "generated_timestamp")
@@ -82,8 +84,11 @@ begin
             elsif (col.include? "_at") || (col.include? "timestamp")
               pair = {:field => col, :type => "datetime"}
               querypairs << pair
+            elsif col.include? "current_tags"
+              pair = {:field => col, :type => "varchar(1024)"}
+              querypairs << pair
             else
-              pair = {:field => col, :type => "text"}
+              pair = {:field => col, :type => "tinytext"}
               querypairs << pair
             end
           end
