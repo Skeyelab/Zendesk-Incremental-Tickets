@@ -118,7 +118,7 @@ begin
 
   end
   oldstarttime = starttime
-  if tix.included['end_time']
+  if tix.included
     db.query("UPDATE `desks` SET `last_timestamp` = '#{tix.included['end_time']}' WHERE `domain` = '#{domain}';")
     starttime = tix.included['end_time']
   end
