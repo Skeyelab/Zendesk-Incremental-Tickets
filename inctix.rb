@@ -9,7 +9,7 @@ require 'timecop'
 db = Mysql2::Client.new(:host => "107.170.142.131", :username => "zendeskulator", :password => "pR5Raspu",:database => "zdtix")
 
 begin
-  desks = db.query("select * from desks;")
+  desks = db.query("select * from desks order by last_timestamp;")
   #desk = desks.first
   desks.each do |desk|
     domain = desk["domain"]
