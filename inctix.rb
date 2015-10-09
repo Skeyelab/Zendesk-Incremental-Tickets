@@ -10,7 +10,7 @@ db = Mysql2::Client.new(:host => "107.170.142.131", :username => "zendeskulator"
 
 begin
   puts "start"
-  desks = db.query("select * from desks where last_timestamp <= #{Time.now.to_i-300} order by last_timestamp;")
+  desks = db.query("select * from desks where last_timestamp <= #{Time.now.to_i-300} order by last_timestamp desc;")
   #desk = desks.first
   desks.each do |desk|
     domain = desk["domain"]
