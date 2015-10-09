@@ -41,7 +41,7 @@ begin
     starttime = desk["last_timestamp"].to_i
     begin
 
-      puts "calling #{domain}"
+      puts "Calling #{domain} from #{Time.at(starttime)}"
       tix = client.tickets.incremental_export(starttime);
       # puts tix.response.status
       progressbar = ProgressBar.create(:total => 1000,:format => "%a %e %P% Processed: %c from %C")
