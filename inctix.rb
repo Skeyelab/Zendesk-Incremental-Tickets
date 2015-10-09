@@ -103,7 +103,7 @@ begin
               pair = {:field => col, :type => "varchar(1024)"}
               querypairs << pair
             else
-              pair = {:field => col, :type => "tinytext"}
+              pair = {:field => col, :type => "VARCHAR(255)"}
               querypairs << pair
             end
           end
