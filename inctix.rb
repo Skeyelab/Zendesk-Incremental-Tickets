@@ -49,8 +49,12 @@ begin
         puts "Calling #{domain} from #{Time.at(starttime)}"
         tix = client.tickets.incremental_export(starttime);
         # puts tix.response.status
-        progressbar = ProgressBar.create(:total => 1000,:format => "%a %e %P% Processed: %c from %C")
+        x =0
         tix.each do |tic|
+          if x==0
+            progressbar = ProgressBar.create(:total => 1000,:format => "%a %e %P% Processed: %c from %C")
+            x=x+1
+          end
           results = db.query("SHOW COLUMNS FROM #{domain}");
           cols = []
 
