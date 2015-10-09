@@ -42,7 +42,9 @@ starttime = desk["last_timestamp"].to_i
 #binding.pry
 begin
 
+  puts "calling zd"
   tix = client.tickets.incremental_export(starttime);
+  puts "done calling"
   progressbar = ProgressBar.create(:total => 1000,:format => "%a %e %P% Processed: %c from %C")
 
 
