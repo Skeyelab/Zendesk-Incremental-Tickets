@@ -161,10 +161,10 @@ begin
   else
     sleepinc = db.query("select min(wait_till) from desks;").first["min(wait_till)"] - Time.now.to_i
 
-    if sleepinc < 0
-      binding.pry
+    if sleepinc > 0
+      sleep sleepinc
     end
 
-    sleep
+
   end
 end while 1
