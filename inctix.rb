@@ -117,7 +117,7 @@ begin
     db.query(q1+q2)
 
   end
-
+  oldstarttime = starttime
   db.query("UPDATE `desks` SET `last_timestamp` = '#{tix.included['end_time']}' WHERE `domain` = '#{domain}';")
   starttime = tix.included['end_time']
-end while (starttime < (Time.now.to_i - 300))
+end while (oldstarttime < starttime)
