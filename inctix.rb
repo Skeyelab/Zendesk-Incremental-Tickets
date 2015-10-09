@@ -159,7 +159,12 @@ begin
       end while ((oldstarttime < starttime) && (oldstarttime < Time.now.to_i))
     end
   else
-    sleep db.query("select min(wait_till) from desks;").first["min(wait_till)"] - Time.now.to_i
+    sleepinc = db.query("select min(wait_till) from desks;").first["min(wait_till)"] - Time.now.to_i
 
+    if sleepinc < 0
+      binding.pry
+    end
+
+    sleep
   end
 end while 1
