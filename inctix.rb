@@ -20,8 +20,8 @@ client = ZendeskAPI::Client.new do |config|
 
   config.retry = true
 
-  require 'logger'
-  config.logger = Logger.new(STDOUT)
+  # require 'logger'
+  # config.logger = Logger.new(STDOUT)
 
 end
 
