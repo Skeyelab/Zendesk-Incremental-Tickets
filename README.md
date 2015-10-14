@@ -1,5 +1,8 @@
 # inctix
 
+This project is very much in works and most of the documentation, if any, is out of date.  The scripts however, kick ass.
+
+
 
 setup "desks" table:
 
