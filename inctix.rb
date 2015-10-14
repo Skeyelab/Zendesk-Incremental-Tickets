@@ -9,9 +9,11 @@ require 'timecop'
 Dotenv.load
 
 db = Mysql2::Client.new(:host => ENV['HOST'], :username => ENV['USERNAME'], :password => ENV['PASSWORD'],:database => ENV['DB'])
-binding.pry
+#binding.pry
 begin
-  desks = db.query("select * from desks where last_timestamp <= #{Time.now.to_i-300} and wait_till < #{Time.now.to_i} and active = 1 order by last_timestamp desc;")
+  qry = "select * from desks where last_timestamp <= #{Time.now.to_i-300} and wait_till < #{Time.now.to_i} and active = 1 order by last_timestamp desc;"
+  puts qry
+  desks = db.query(qry)
   #desk = desks.first
   if desks.count > 0
     desks.each do |desk|
@@ -146,11 +148,15 @@ begin
       end while ((oldstarttime < starttime) && (oldstarttime < Time.now.to_i))
     end
   else
-    sleepinc = db.query("select min(wait_till) from desks;").first["min(wait_till)"] - Time.now.to_i
-
+    sleepinc = db.query("select min(wait_till) from desks where active = 1;").first["min(wait_till)"] - Time.now.to_i
+    binding.pry
     if sleepinc > 0
+      puts "Sleeping #{sleepinc}."
       sleep sleepinc
+    else
+      sleep 1
     end
+
 
   end
 end while 1
