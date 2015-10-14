@@ -12,7 +12,7 @@ db = Mysql2::Client.new(:host => ENV['HOST'], :username => ENV['USERNAME'], :pas
 #binding.pry
 begin
   qry = "select * from desks where last_timestamp <= #{Time.now.to_i-300} and wait_till < #{Time.now.to_i} and active = 1 order by last_timestamp desc;"
-  puts qry
+  # puts qry
   desks = db.query(qry)
   #desk = desks.first
   if desks.count > 0
