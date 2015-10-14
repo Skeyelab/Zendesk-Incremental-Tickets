@@ -57,7 +57,8 @@ begin
         progressbar = ProgressBar.create(:total => 1000,:format => "%a %e %P% Processed: %c from %C")
 
         tix.each do |tic|
-          results = db.query("SHOW COLUMNS FROM #{domain}");
+          #    binding.pry
+          results = db.query("SHOW COLUMNS FROM `#{domain}`");
           cols = []
 
           results.each do |col|
@@ -103,7 +104,7 @@ begin
               end
             end
 
-            query = "ALTER TABLE #{domain} ADD ("
+            query = "ALTER TABLE `#{domain}` ADD ("
 
             querypairs.each do |pair|
               query = query + pair[:field] + " " + pair[:type]+","
@@ -123,7 +124,7 @@ begin
           tic.each do |field|
             querypairs[field[0].to_s] = field[1]
           end
-          q1 = "REPLACE INTO #{domain} ("
+          q1 = "REPLACE INTO `#{domain}` ("
           q2 = ") VALUES ("
           querypairs.each do |key, value|
             q1 = q1 + key.to_s + ", "
