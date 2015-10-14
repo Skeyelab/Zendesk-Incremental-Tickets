@@ -153,7 +153,7 @@ begin
     # binding.pry
     if sleepinc > 0
 
-
+      puts "Sleeping #{sleepinc}..."
       sleepinc.times do |i|
         sleep 1
         time_left = sleepinc - i
