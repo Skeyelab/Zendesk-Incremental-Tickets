@@ -149,15 +149,15 @@ begin
       end while ((oldstarttime < starttime) && (oldstarttime < Time.now.to_i))
     end
   else
-    sleepinc = db.query("select min(wait_till) from desks where active = 1;").first["min(wait_till)"] - Time.now.to_i
-    binding.pry
+    sleepinc = (db.query("select min(wait_till) from desks where active = 1;").first["min(wait_till)"] || 0) - Time.now.to_i
+    #binding.pry
     if sleepinc > 0
 
 
       sleepinc.times do |i|
         sleep 1
         time_left = sleepinc - i
-        puts "#{time_left}..." if time_left > 0 && time_left % 5 == 0
+        puts "Sleeping #{time_left}..." if time_left > 0 && time_left % 5 == 0
       end
     else
       sleep 1
