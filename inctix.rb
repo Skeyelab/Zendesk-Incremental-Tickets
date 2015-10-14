@@ -152,8 +152,13 @@ begin
     sleepinc = db.query("select min(wait_till) from desks where active = 1;").first["min(wait_till)"] - Time.now.to_i
     binding.pry
     if sleepinc > 0
-      puts "Sleeping #{sleepinc}."
-      sleep sleepinc
+
+
+      sleepinc.times do |i|
+        sleep 1
+        time_left = seconds_left - i
+        @logger.warn "#{time_left}..." if time_left > 0 && time_left % 5 == 0 && @logger
+      end
     else
       sleep 1
     end
