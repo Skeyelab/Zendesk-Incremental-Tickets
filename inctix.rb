@@ -30,7 +30,7 @@ begin
 
       client.insert_callback do |env|
         if env[:status] == 429
-          puts "setting wait_till for #{domain}"
+          puts "setting wait_till for #{domain}: #{env[:response_headers][:retry_after]}"
           db.query("UPDATE `desks` SET `wait_till` = '#{(env[:response_headers][:retry_after] || 10).to_i + Time.now.to_i}' WHERE `domain` = '#{domain}';")
         end
       end
