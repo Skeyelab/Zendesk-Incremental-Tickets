@@ -153,8 +153,6 @@ begin
           end
         end
         progressbar.finish
-        puts "Start: #{starttime}"
-        puts "Old Start: #{oldstarttime}"
       end while ((oldstarttime < starttime) && (oldstarttime < Time.now.to_i))
     end
   else
