@@ -1,3 +1,4 @@
+require 'dotenv'
 require 'rubygems'
 require 'bundler/setup'
 require 'zendesk_api'
@@ -5,9 +6,10 @@ require 'pry'
 require 'mysql2'
 require 'ruby-progressbar'
 require 'timecop'
+Dotenv.load
 
-db = Mysql2::Client.new(:host => "107.170.142.131", :username => "zendeskulator", :password => "pR5Raspu",:database => "zdtix")
-
+db = Mysql2::Client.new(:host => ENV['HOST'], :username => ENV['USERNAME'], :password => ENV['PASSWORD'],:database => ENV['DB'])
+binding.pry
 begin
   desks = db.query("select * from desks where last_timestamp <= #{Time.now.to_i-300} and wait_till < #{Time.now.to_i} and active = 1 order by last_timestamp desc;")
   #desk = desks.first
