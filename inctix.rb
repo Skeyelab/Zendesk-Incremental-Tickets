@@ -142,8 +142,15 @@ begin
         oldstarttime = starttime
         if tix.included
           #  binding.pry
-          db.query("UPDATE `desks` SET `last_timestamp` = '#{tix.included['end_time']}' WHERE `domain` = '#{domain}';")
-          starttime = tix.included['end_time']
+          if tix.included['end_time']
+            starttime = tix.included['end_time']
+          else
+            starttime = 0
+          end
+
+          if starttime != 0
+            db.query("UPDATE `desks` SET `last_timestamp` = '#{starttime}' WHERE `domain` = '#{domain}';")
+          end
         end
         progressbar.finish
         puts "Start: #{starttime}"
