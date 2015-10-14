@@ -20,7 +20,7 @@ begin
       domain = desk["domain"]
       client = ZendeskAPI::Client.new do |config|
 
-        config.url = "https://#{domain}.zendesk.com/api/v2" # e.g. https://mydesk.zendesk.com/api/v2
+        config.url = "https://#{domain}/api/v2" # e.g. https://mydesk.zendesk.com/api/v2
         config.username = desk["user"]
         config.token = desk["token"]
 
