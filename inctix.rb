@@ -157,7 +157,7 @@ begin
       sleepinc.times do |i|
         sleep 1
         time_left = sleepinc - i
-        @logger.warn "#{time_left}..." if time_left > 0 && time_left % 5 == 0 && @logger
+        puts "#{time_left}..." if time_left > 0 && time_left % 5 == 0
       end
     else
       sleep 1
