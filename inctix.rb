@@ -35,7 +35,7 @@ begin
       end
 
 
-      tables = db.query("SHOW TABLES FROM zdtix",:as => :array);
+      tables = db.query("SHOW TABLES FROM #{ENV['DB']}",:as => :array);
       tbls =[]
 
       tables.each do |table|
