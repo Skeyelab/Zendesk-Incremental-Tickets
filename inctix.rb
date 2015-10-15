@@ -1,3 +1,4 @@
+#!ruby
 require 'dotenv'
 require 'rubygems'
 require 'bundler/setup'
@@ -9,7 +10,6 @@ require 'timecop'
 Dotenv.load
 
 db = Mysql2::Client.new(:host => ENV['HOST'], :username => ENV['USERNAME'], :password => ENV['PASSWORD'],:database => ENV['DB'])
-#binding.pry
 begin
   qry = "select * from desks where last_timestamp <= #{Time.now.to_i-300} and wait_till < #{Time.now.to_i} and active = 1 order by last_timestamp desc;"
   # puts qry
