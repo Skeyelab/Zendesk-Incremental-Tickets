@@ -1,4 +1,5 @@
-#!ruby
+#!/usr/bin/env ruby
+
 require 'dotenv'
 require 'rubygems'
 require 'bundler/setup'
