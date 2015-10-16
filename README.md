@@ -8,6 +8,8 @@ If multiple accounts are added, it will respect everyone's API limits and move o
 Clone the repo
 ```git clone https://github.com/Skeyelab/Zendesk-Incremental-Tickets.git```
 
+```cd Zendesk-Incremental-Tickets```
+
 Install gems
 ```bundle install```
 
