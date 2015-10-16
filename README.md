@@ -1,9 +1,10 @@
-# inctix
+# Zendesk Incremental Tickets to MySQL
 
-This project is very much in works and most of the documentation, if any, is out of date.  The scripts however, kick ass.
+This will pull incremental ticket data into a MySQL data base for one or multiple Zendesk accounts.  Each account will be in its own table in the database and columns will be added as needed. 
 
+If multiple accounts are added, it will respect everyone's API limits and move ont the next account when an API limit is reached.  It will also respect the 5 minute rule that the incremental APIs have.
 
-
+##Configuration
 setup "desks" table:
 
 ```sql
@@ -21,3 +22,12 @@ CREATE TABLE `desks` (
   UNIQUE KEY `domain` (`domain`)
 ) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=latin1;
 ```
+Add Zendesk accounts.  If you only have one, that is fine. You need to populate `domain`, `user` and `token`.  Set `active` = 1 to collect data from this account.
+
+
+##inctix.rb
+```bash
+chmod +x inxtix.rb
+```
+This should be run as a service.  I prefer to use supervisord, but you are free to use what ever you prefer to daemonize a process.
+
