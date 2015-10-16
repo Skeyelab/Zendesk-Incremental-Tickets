@@ -3,3 +3,4 @@ Gemfile.lock
 .env
 .ruby-version
 .ruby-gemset
+.idea/*

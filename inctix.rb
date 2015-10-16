@@ -11,29 +11,33 @@ require 'timecop'
 Dotenv.load
 
 db = Mysql2::Client.new(:host => ENV['HOST'], :username => ENV['USERNAME'], :password => ENV['PASSWORD'],:database => ENV['DB'])
+
+def connectToZendesk(desk)
+  client = ZendeskAPI::Client.new do |config|
+
+    config.url = "https://#{desk["domain"]}/api/v2" # e.g. https://mydesk.zendesk.com/api/v2
+    config.username = desk["user"]
+    config.token = desk["token"]
+
+    config.retry = false
+
+  end
+
+  client.insert_callback do |env|
+    if env[:status] == 429
+      db.query("UPDATE `desks` SET `wait_till` = '#{(env[:response_headers][:retry_after] || 10).to_i + Time.now.to_i}' WHERE `domain` = '#{desk["domain"]}';")
+    end
+  end
+  return client
+end
+
 begin
   qry = "select * from desks where last_timestamp <= #{Time.now.to_i-300} and wait_till < #{Time.now.to_i} and active = 1 order by last_timestamp desc;"
-  # puts qry
   desks = db.query(qry)
-  #desk = desks.first
   if desks.count > 0
     desks.each do |desk|
       domain = desk["domain"]
-      client = ZendeskAPI::Client.new do |config|
-
-        config.url = "https://#{domain}/api/v2" # e.g. https://mydesk.zendesk.com/api/v2
-        config.username = desk["user"]
-        config.token = desk["token"]
-
-        config.retry = false
-
-      end
-
-      client.insert_callback do |env|
-        if env[:status] == 429
-          db.query("UPDATE `desks` SET `wait_till` = '#{(env[:response_headers][:retry_after] || 10).to_i + Time.now.to_i}' WHERE `domain` = '#{domain}';")
-        end
-      end
+      client = connectToZendesk(desk)
 
 
       tables = db.query("SHOW TABLES FROM #{ENV['DB']}",:as => :array);
@@ -53,22 +57,19 @@ begin
 
         puts "Calling #{domain} from #{Time.at(starttime)}"
         tix = client.tickets.incremental_export(starttime);
-        # puts tix.response.status
         progressbar = ProgressBar.create(:total => 1000,:format => "%a %e %P% Processed: %c from %C")
 
         tix.each do |tic|
-          #    binding.pry
           results = db.query("SHOW COLUMNS FROM `#{domain}`");
           cols = []
 
           results.each do |col|
-            #puts col["Field"]
             cols << col["Field"]
 
           end
+
           apicols = []
           neededcols = []
-
 
           tic.keys.each do |key|
             apicols << key
@@ -133,16 +134,13 @@ begin
 
           q1 = q1.chomp(", ")
           q2 = q2.chomp(", ")
-
           q2 = q2 + ");"
 
-          # puts q1+q2
           db.query(q1+q2)
           progressbar.increment
         end
         oldstarttime = starttime
         if tix.included
-          #  binding.pry
           if tix.included['end_time']
             starttime = tix.included['end_time']
           else
@@ -158,17 +156,13 @@ begin
     end
   else
     sleepinc = (db.query("select min(wait_till) - UNIX_TIMESTAMP() as sleeptime from desks where active = 1 and `wait_till` >= UNIX_TIMESTAMP()").first["sleeptime"] || 0)
-    # binding.pry
     if sleepinc > 0
-
       puts "Sleeping #{sleepinc}..."
       sleepinc.times do |i|
         sleep 1
         time_left = sleepinc - i
         puts "Sleeping #{time_left}..." if time_left > 0 && time_left % 5 == 0
       end
-    else
-      #sleep 1
     end
 
 
