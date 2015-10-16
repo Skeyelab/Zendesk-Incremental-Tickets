@@ -5,7 +5,10 @@ This will pull incremental ticket data into a MySQL data base for one or multipl
 If multiple accounts are added, it will respect everyone's API limits and move ont the next account when an API limit is reached.  It will also respect the 5 minute rule that the incremental APIs have.
 
 ##Configuration
-setup "desks" table:
+Install gems
+```bundle install```
+
+Setup "desks" table:
 
 ```sql
 CREATE TABLE `desks` (
@@ -24,10 +27,14 @@ CREATE TABLE `desks` (
 ```
 Add Zendesk accounts.  If you only have one, that is fine. You need to populate `domain`, `user` and `token`.  Set `active` = 1 to collect data from this account.
 
+##.env
+You will need to rename .env.example and edit it with your database settings.
+
+
 
 ##inctix.rb
 ```bash
 chmod +x inxtix.rb
 ```
-This should be run as a service.  I prefer to use supervisord, but you are free to use what ever you prefer to daemonize a process.
+This should be run as a service.  I prefer to use supervisord, but you are free to use what ever you prefer to daemonize a process.  Configuring this is beyond the scope of this document.
 
