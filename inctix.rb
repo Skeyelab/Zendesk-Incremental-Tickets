@@ -1,45 +1,16 @@
 #!/usr/bin/env ruby
 
-require 'dotenv'
-require 'rubygems'
-require 'bundler/setup'
-require 'zendesk_api'
-require 'pry'
-require 'mysql2'
-require 'ruby-progressbar'
-require 'timecop'
-Dotenv.load
-
-db = Mysql2::Client.new(:host => ENV['HOST'], :username => ENV['USERNAME'], :password => ENV['PASSWORD'],:database => ENV['DB'])
-
-def connectToZendesk(desk)
-
-  client = ZendeskAPI::Client.new do |config|
-    config.url = "https://#{desk["domain"]}/api/v2" # e.g. https://mydesk.zendesk.com/api/v2
-    config.username = desk["user"]
-    config.token = desk["token"]
-    config.retry = false
-  end
-
-  client.insert_callback do |env|
-    if env[:status] == 429
-      db.query("UPDATE `desks` SET `wait_till` = '#{(env[:response_headers][:retry_after] || 10).to_i + Time.now.to_i}' WHERE `domain` = '#{desk["domain"]}';")
-    end
-  end
-
-  return client
-
-end
+require_relative 'init'
 
 begin
   qry = "select * from desks where last_timestamp <= #{Time.now.to_i-300} and wait_till < #{Time.now.to_i} and active = 1 order by last_timestamp desc;"
-  desks = db.query(qry)
+  desks = DB.query(qry)
   if desks.count > 0
     desks.each do |desk|
       domain = desk["domain"]
       client = connectToZendesk(desk)
 
-      tables = db.query("SHOW TABLES FROM #{ENV['DB']}",:as => :array);
+      tables = DB.query("SHOW TABLES FROM #{ENV['DB']}",:as => :array);
       tbls =[]
 
       tables.each do |table|
@@ -47,7 +18,7 @@ begin
       end
 
       if !tbls.include? domain
-        db.query("CREATE TABLE `#{domain}` (id INT(11) UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT);
+        DB.query("CREATE TABLE `#{domain}` (id INT(11) UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT);
 ")
       end
 
@@ -59,7 +30,7 @@ begin
         progressbar = ProgressBar.create(:total => 1000,:format => "%a %e %P% Processed: %c from %C")
 
         tix.each do |tic|
-          results = db.query("SHOW COLUMNS FROM `#{domain}`");
+          results = DB.query("SHOW COLUMNS FROM `#{domain}`");
           cols = []
 
           results.each do |col|
@@ -116,7 +87,7 @@ begin
             progressbar.log "***ADDING COL***"
             progressbar.log query
 
-            db.query(query)
+            DB.query(query)
 
           end
 
@@ -128,14 +99,14 @@ begin
           q2 = ") VALUES ("
           querypairs.each do |key, value|
             q1 = q1 + key.to_s + ", "
-            q2 = q2 + "\"" + db.escape(value.to_s) + "\", "
+            q2 = q2 + "\"" + DB.escape(value.to_s) + "\", "
           end
 
           q1 = q1.chomp(", ")
           q2 = q2.chomp(", ")
           q2 = q2 + ");"
 
-          db.query(q1+q2)
+          DB.query(q1+q2)
           progressbar.increment
         end
         oldstarttime = starttime
@@ -147,14 +118,14 @@ begin
           end
 
           if starttime != 0
-            db.query("UPDATE `desks` SET `last_timestamp` = '#{starttime}' WHERE `domain` = '#{domain}';")
+            DB.query("UPDATE `desks` SET `last_timestamp` = '#{starttime}' WHERE `domain` = '#{domain}';")
           end
         end
         progressbar.finish
       end while ((oldstarttime < starttime) && (oldstarttime < Time.now.to_i))
     end
   else
-    sleepinc = (db.query("select min(wait_till) - UNIX_TIMESTAMP() as sleeptime from desks where active = 1 and `wait_till` >= UNIX_TIMESTAMP()").first["sleeptime"] || 0)
+    sleepinc = (DB.query("select min(wait_till) - UNIX_TIMESTAMP() as sleeptime from desks where active = 1 and `wait_till` >= UNIX_TIMESTAMP()").first["sleeptime"] || 0)
     if sleepinc > 0
       puts "Sleeping #{sleepinc}..."
       sleepinc.times do |i|
