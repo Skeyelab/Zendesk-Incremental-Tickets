@@ -39,7 +39,7 @@ You will need to rename .env.example and edit it with your database settings.
 
 ##inctix.rb
 ```bash
-chmod +x inxtix.rb
+chmod +x inctix.rb
 ```
 This should be run as a service.  I prefer to use supervisord, but you are free to use what ever you prefer to daemonize a process.  Configuring this is beyond the scope of this document.
 
