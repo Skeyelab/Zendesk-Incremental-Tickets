@@ -2,35 +2,27 @@
 
 require_relative 'init'
 
+
 begin
   qry = "select * from desks where last_timestamp <= #{Time.now.to_i-300} and wait_till < #{Time.now.to_i} and active = 1 order by last_timestamp desc;"
   desks = DB.query(qry)
   if desks.count > 0
     desks.each do |desk|
-      domain = desk["domain"]
+
       client = connectToZendesk(desk)
 
-      tables = DB.query("SHOW TABLES FROM #{ENV['DB']}",:as => :array);
-      tbls =[]
-
-      tables.each do |table|
-        tbls << table[0]
-      end
-
-      if !tbls.include? domain
-        DB.query("CREATE TABLE `#{domain}` (id INT(11) UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT);
-")
-      end
+      createTableIfNeeded(desk["domain"])
 
       starttime = desk["last_timestamp"].to_i
+
       begin
 
-        puts "Calling #{domain} from #{Time.at(starttime)}"
+        puts "Calling #{desk["domain"]} from #{Time.at(starttime)}"
         tix = client.tickets.incremental_export(starttime);
         progressbar = ProgressBar.create(:total => 1000,:format => "%a %e %P% Processed: %c from %C")
 
         tix.each do |tic|
-          results = DB.query("SHOW COLUMNS FROM `#{domain}`");
+          results = DB.query("SHOW COLUMNS FROM `#{desk["domain"]}`");
           cols = []
 
           results.each do |col|
@@ -75,7 +67,7 @@ begin
               end
             end
 
-            query = "ALTER TABLE `#{domain}` ADD ("
+            query = "ALTER TABLE `#{desk["domain"]}` ADD ("
 
             querypairs.each do |pair|
               query = query + pair[:field] + " " + pair[:type]+","
@@ -95,7 +87,7 @@ begin
           tic.each do |field|
             querypairs[field[0].to_s] = field[1]
           end
-          q1 = "REPLACE INTO `#{domain}` ("
+          q1 = "REPLACE INTO `#{desk["domain"]}` ("
           q2 = ") VALUES ("
           querypairs.each do |key, value|
             q1 = q1 + key.to_s + ", "
@@ -118,12 +110,13 @@ begin
           end
 
           if starttime != 0
-            DB.query("UPDATE `desks` SET `last_timestamp` = '#{starttime}' WHERE `domain` = '#{domain}';")
+            DB.query("UPDATE `desks` SET `last_timestamp` = '#{starttime}' WHERE `domain` = '#{desk["domain"]}';")
           end
         end
         progressbar.finish
       end while ((oldstarttime < starttime) && (oldstarttime < Time.now.to_i))
     end
+
   else
     sleepinc = (DB.query("select min(wait_till) - UNIX_TIMESTAMP() as sleeptime from desks where active = 1 and `wait_till` >= UNIX_TIMESTAMP()").first["sleeptime"] || 0)
     if sleepinc > 0
@@ -134,7 +127,6 @@ begin
         puts "Sleeping #{time_left}..." if time_left > 0 && time_left % 5 == 0
       end
     end
-
-
   end
+
 end while 1
