@@ -6,7 +6,7 @@ If multiple accounts are added, it will respect everyone's API limits and move o
 
 ##Configuration
 Clone the repo
-```git clone ```
+```git clone https://github.com/Skeyelab/Zendesk-Incremental-Tickets.git```
 
 Install gems
 ```bundle install```
