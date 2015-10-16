@@ -5,6 +5,9 @@ This will pull incremental ticket data into a MySQL data base for one or multipl
 If multiple accounts are added, it will respect everyone's API limits and move ont the next account when an API limit is reached.  It will also respect the 5 minute rule that the incremental APIs have.
 
 ##Configuration
+Clone the repo
+```git clone ```
+
 Install gems
 ```bundle install```
 
