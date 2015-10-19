@@ -47,16 +47,16 @@ begin
                 pair = {:field => col, :type => "varchar(64)"}
                 querypairs << pair
               elsif (col.include? "minutes")
-                pair = {:field => col, :type => "int(16)"}
+                pair = {:field => col, :type => "int"}
                 querypairs << pair
               elsif (col.include? "id")
                 pair = {:field => col, :type => "bigint"}
                 querypairs << pair
               elsif (tix.included["field_headers"][col]) && (tix.included["field_headers"][col].include? "[int]")
-                pair = {:field => col, :type => "int(16)"}
+                pair = {:field => col, :type => "int"}
                 querypairs << pair
               elsif (col.include? "generated_timestamp")
-                pair = {:field => col, :type => "int(16)"}
+                pair = {:field => col, :type => "int"}
                 querypairs << pair
               elsif (col.include? "_at") || (col.include? "timestamp")
                 pair = {:field => col, :type => "datetime"}
