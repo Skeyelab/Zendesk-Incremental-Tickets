@@ -7,6 +7,7 @@ require 'pry'
 require 'mysql2'
 require 'ruby-progressbar'
 require 'timecop'
+require 'aws-sdk'
 Dotenv.load
 
 DB = Mysql2::Client.new(:host => ENV['HOST'], :username => ENV['USERNAME'], :password => ENV['PASSWORD'],:database => ENV['DB'])

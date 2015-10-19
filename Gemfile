@@ -5,3 +5,4 @@ gem "mysql2"
 gem 'ruby-progressbar'
 gem 'timecop'
 gem 'dotenv'
+gem 'aws-sdk', '~> 2'

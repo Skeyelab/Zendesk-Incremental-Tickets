@@ -27,7 +27,6 @@ begin
 
           results.each do |col|
             cols << col["Field"]
-
           end
 
           apicols = []
@@ -38,6 +37,7 @@ begin
           end
 
           neededcols = apicols - cols
+
           if neededcols.count > 0
 
             querypairs = []
@@ -46,8 +46,11 @@ begin
               if (col.include? "req_external_id") || (col.include? "_name")
                 pair = {:field => col, :type => "varchar(64)"}
                 querypairs << pair
-              elsif (col.include? "minutes") || (col.include? "id")
+              elsif (col.include? "minutes")
                 pair = {:field => col, :type => "int(16)"}
+                querypairs << pair
+              elsif (col.include? "id")
+                pair = {:field => col, :type => "bigint"}
                 querypairs << pair
               elsif (tix.included["field_headers"][col]) && (tix.included["field_headers"][col].include? "[int]")
                 pair = {:field => col, :type => "int(16)"}
@@ -72,8 +75,8 @@ begin
             querypairs.each do |pair|
               query = query + pair[:field] + " " + pair[:type]+","
             end
-            query = query.chomp(",")
 
+            query = query.chomp(",")
             query = query + ");"
 
             progressbar.log "***ADDING COL***"
