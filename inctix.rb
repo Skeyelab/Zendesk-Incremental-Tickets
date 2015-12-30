@@ -136,6 +136,11 @@ begin
         sleep 1
         time_left = sleepinc - i
         puts "Sleeping #{time_left}..." if time_left > 0 && time_left % 5 == 0
+        sleepinc = (DB.query("select min(wait_till) - UNIX_TIMESTAMP() as sleeptime from desks where active = 1 and `wait_till` >= UNIX_TIMESTAMP()").first["sleeptime"] || 0)
+        puts "sleepinc: "+sleepinc
+        if sleepinc > 0
+          break
+        end
       end
     end
   end
