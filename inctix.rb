@@ -91,7 +91,7 @@ begin
           tic.each do |field|
 
             if (field[0].include? "_at")
-              if field[1] != nil
+              if (field[1] != nil && field[1] != "")
                 field[1] = Time.parse(field[1]).utc.strftime("%Y-%m-%d %H:%M:%S")
               end
             end
