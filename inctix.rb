@@ -3,6 +3,7 @@
 require_relative 'init'
 
 
+
 begin
   qry = "select * from desks where last_timestamp <= #{Time.now.to_i-300} and wait_till < #{Time.now.to_i} and active = 1 order by last_timestamp desc;"
   desks = DB.query(qry)
@@ -88,19 +89,26 @@ begin
 
           querypairs = {}
           tic.each do |field|
+
+            if (field[0].include? "_at")
+              if field[1] != nil
+                field[1] = Time.parse(field[1]).utc.strftime("%Y-%m-%d %H:%M:%S")
+              end
+            end
+
             querypairs[field[0].to_s] = field[1]
           end
+
+
           q1 = "REPLACE INTO `#{desk["domain"]}` ("
           q2 = ") VALUES ("
           querypairs.each do |key, value|
             q1 = q1 + key.to_s + ", "
             q2 = q2 + "\"" + DB.escape(value.to_s) + "\", "
           end
-
           q1 = q1.chomp(", ")
           q2 = q2.chomp(", ")
           q2 = q2 + ");"
-
           DB.query(q1+q2)
           progressbar.increment
         end
