@@ -1,4 +1,3 @@
-
 require 'dotenv'
 require 'rubygems'
 require 'bundler/setup'
@@ -40,6 +39,6 @@ def createTableIfNeeded(domain)
   end
 
   if !tbls.include? domain
-    DB.query("CREATE TABLE `#{domain}` (id INT(11) UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT);")
+    DB.query("CREATE TABLE `#{domain}` (id BIGINT(16) UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT);")
   end
 end
