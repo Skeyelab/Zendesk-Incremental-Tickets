@@ -137,6 +137,8 @@ begin
         time_left = sleepinc - i
         puts "Sleeping #{time_left}..." if time_left > 0 && time_left % 5 == 0
       end
+    else
+      sleep 1
     end
   end
 
