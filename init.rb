@@ -18,8 +18,6 @@ DB = Mysql2::Client.new(:host => uri.host, :username => uri.user, :password => u
 pg_uri = URI.parse(ENV['DATABASE_URL'])
 PG_DB = PG.connect(pg_uri.hostname, pg_uri.port, nil, nil, pg_uri.path[1..-1], pg_uri.user, pg_uri.password)
 
-
-binding.pry
 def connectToZendesk(desk)
 
   client = ZendeskAPI::Client.new do |config|
