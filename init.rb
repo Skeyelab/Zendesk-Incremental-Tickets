@@ -7,6 +7,7 @@ require 'mysql2'
 require 'ruby-progressbar'
 require 'timecop'
 require 'aws-sdk'
+require 'faker'
 Dotenv.load
 
 DB = Mysql2::Client.new(:host => ENV['HOST'], :username => ENV['USERNAME'], :password => ENV['PASSWORD'],:database => ENV['DB'])
@@ -28,6 +29,12 @@ def connectToZendesk(desk)
 
   return client
 
+end
+
+def createTestTic(desk)
+  client = connectToZendesk(desk)
+
+  client.tickets.create!(:subject => Faker::Lorem.word, :comment => { :value => Faker::Lorem.sentence }, :submitter_id => client.current_user.id, :priority => "urgent")
 end
 
 def createTableIfNeeded(domain)
