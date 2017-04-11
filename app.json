@@ -1,8 +1,7 @@
 {
   "name": "Zendesk Incremental Tickets",
   "description": "This app does one little thing, and does it well.",
-  "env": {
-  
+  "env": {  
     "WEB_CONCURRENCY": {
       "description": "The number of processes to run.",
       "value": ""
