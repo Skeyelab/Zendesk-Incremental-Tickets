@@ -1,5 +1,12 @@
 {
   "name": "Zendesk Incremental Tickets",
   "description": "This app does one little thing, and does it well.",
-  "image": "heroku/ruby"
+  "image": "heroku/ruby",
+  "env": {
+  
+    "WEB_CONCURRENCY": {
+      "description": "The number of processes to run.",
+      "value": "5"
+    }
+  }
 }
