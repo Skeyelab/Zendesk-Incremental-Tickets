@@ -138,6 +138,8 @@ begin
         puts "Sleeping #{time_left}..." if time_left > 0 && time_left % 5 == 0
       end
     else
+      exit
+
       sleep 1
     end
   end
