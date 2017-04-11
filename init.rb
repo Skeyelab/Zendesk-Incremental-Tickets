@@ -13,7 +13,9 @@ Dotenv.load
 uri = URI.parse(ENV['CLEARDB_DATABASE_URL'])
 
 uri.path[0] = ''
+binding.pry
 DB = Mysql2::Client.new(:host => uri.host, :username => uri.user, :password => uri.password,:database => uri.path)
+
 
 def connectToZendesk(desk)
 
@@ -41,7 +43,12 @@ def createTestTic(desk)
 end
 
 def createTableIfNeeded(domain)
-  tables = DB.query("SHOW TABLES FROM #{ENV['DB']}", :as => :array);
+
+  uri = URI.parse(ENV['CLEARDB_DATABASE_URL'])
+
+  uri.path[0] = ''
+
+  tables = DB.query("SHOW TABLES FROM #{uri.path}", :as => :array);
   tbls =[]
 
   tables.each do |table|
