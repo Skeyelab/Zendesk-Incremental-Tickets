@@ -141,7 +141,8 @@ begin
 
       sleep 1
     end
+    exit 1
+
   end
-  exit 1
 
 end while 1

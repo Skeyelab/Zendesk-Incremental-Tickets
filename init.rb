@@ -8,14 +8,18 @@ require 'ruby-progressbar'
 require 'timecop'
 require 'aws-sdk'
 require 'faker'
+require 'pg'
 Dotenv.load
 
 uri = URI.parse(ENV['CLEARDB_DATABASE_URL'])
 
-uri.path[0] = ''
-DB = Mysql2::Client.new(:host => uri.host, :username => uri.user, :password => uri.password,:database => uri.path)
+DB = Mysql2::Client.new(:host => uri.host, :username => uri.user, :password => uri.password,:database => uri.path[1..-1])
+
+pg_uri = URI.parse(ENV['DATABASE_URL'])
+PG_DB = PG.connect(pg_uri.hostname, pg_uri.port, nil, nil, pg_uri.path[1..-1], pg_uri.user, pg_uri.password)
 
 
+binding.pry
 def connectToZendesk(desk)
 
   client = ZendeskAPI::Client.new do |config|
@@ -45,9 +49,7 @@ def createTableIfNeeded(domain)
 
   uri = URI.parse(ENV['CLEARDB_DATABASE_URL'])
 
-  uri.path[0] = ''
-
-  tables = DB.query("SHOW TABLES FROM #{uri.path}", :as => :array);
+  tables = DB.query("SHOW TABLES FROM #{uri.path[1..-1]}", :as => :array);
   tbls =[]
 
   tables.each do |table|

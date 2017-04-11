@@ -8,5 +8,13 @@
       "description": "The number of processes to run.",
       "value": ""
     }
-  }
+  },
+  "buildpacks": [
+    {
+      "url": "https://github.com/heroku/heroku-buildpack-apt"
+    },
+    {
+      "url": "heroku/ruby"
+    }
+  ]
 }
