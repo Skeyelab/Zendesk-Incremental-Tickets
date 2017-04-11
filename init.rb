@@ -13,7 +13,6 @@ Dotenv.load
 uri = URI.parse(ENV['CLEARDB_DATABASE_URL'])
 
 uri.path[0] = ''
-binding.pry
 DB = Mysql2::Client.new(:host => uri.host, :username => uri.user, :password => uri.password,:database => uri.path)
 
 
