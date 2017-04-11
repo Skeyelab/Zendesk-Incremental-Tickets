@@ -10,7 +10,10 @@ require 'aws-sdk'
 require 'faker'
 Dotenv.load
 
-DB = Mysql2::Client.new(:host => ENV['HOST'], :username => ENV['USERNAME'], :password => ENV['PASSWORD'],:database => ENV['DB'])
+uri = URI.parse(ENV['CLEARDB_DATABASE_URL'])
+
+uri.path[0] = ''
+DB = Mysql2::Client.new(:host => uri.host, :username => uri.user, :password => uri.password,:database => uri.path)
 
 def connectToZendesk(desk)
 
