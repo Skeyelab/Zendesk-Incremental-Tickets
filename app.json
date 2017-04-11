@@ -7,13 +7,11 @@
     }
   ],
   "addons": [
-  	"adminium:petproject",
-  	"cleardb:ignite",
-  	{
-  	"plan": "scheduler:standard"
-  }
+    "adminium:petproject",
+    "cleardb:ignite",
+    "scheduler:standard"
   ],
-    "formation": {
+  "formation": {
     "worker": {
       "quantity": 0,
       "size": "free"
