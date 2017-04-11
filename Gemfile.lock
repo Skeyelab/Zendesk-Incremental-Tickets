@@ -26,7 +26,6 @@ GEM
     multipart-post (2.0.0)
     mysql2 (0.4.5)
     parallel (1.11.1)
-    pg (0.20.0)
     pry (0.10.4)
       coderay (~> 1.1.0)
       method_source (~> 0.8.1)
@@ -50,7 +49,6 @@ DEPENDENCIES
   faker
   mysql2
   parallel
-  pg
   pry
   ruby-progressbar
   timecop
