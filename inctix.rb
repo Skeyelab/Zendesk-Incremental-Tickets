@@ -2,7 +2,7 @@
 
 require_relative 'init'
 
-
+createDesksTableIfNeeded
 
 begin
   qry = "select * from desks where last_timestamp <= #{Time.now.to_i-300} and wait_till < #{Time.now.to_i} and active = 1 order by last_timestamp desc;"

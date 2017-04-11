@@ -54,6 +54,18 @@ def createTableIfNeeded(domain)
     DB.query("CREATE TABLE `#{domain}` (id BIGINT(16) UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT);")
   end
 
+end
+
+def createDesksTableIfNeeded
+  uri = URI.parse(ENV['CLEARDB_DATABASE_URL'])
+
+  tables = DB.query("SHOW TABLES FROM #{uri.path[1..-1]}", :as => :array);
+  tbls =[]
+
+  tables.each do |table|
+    tbls << table[0]
+  end
+
   if !tbls.include? "desks"
 
     my_qry = "CREATE TABLE `desks` (
