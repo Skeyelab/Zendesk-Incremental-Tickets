@@ -3,14 +3,17 @@
   "description": "This app does one little thing, and does it well.",
   "buildpacks": [
     {
-      "url": "https://github.com/heroku/heroku-buildpack-apt"
-    },
-    {
       "url": "heroku/ruby"
     }
   ],
   "addons": [
   	"adminium:petproject",
   	"cleardb:ignite"
-  ]
+  ],
+    "formation": {
+    "worker": {
+      "quantity": 1,
+      "size": "free"
+    }
+  }
 }
